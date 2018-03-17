@@ -8,6 +8,8 @@ using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Pdf;
 using Android.OS;
+using Android.Print;
+using Android.Print.Pdf;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
@@ -20,8 +22,15 @@ namespace MpPdfDemoApp.Droid.Helpers
     {
         public void GeneratePdfFile(string text)
         {
+            PrintAttributes printAttrs = new PrintAttributes.Builder()
+                .SetColorMode(PrintColorMode.Color)
+                .SetMediaSize(PrintAttributes.MediaSize.IsoA4)
+                .SetResolution(new PrintAttributes.Resolution("guardianHealthId", "TestReport", 592, 842))
+                .SetMinMargins(PrintAttributes.Margins.NoMargins)
+                .Build();
+
             // Create a document
-            PdfDocument document = new PdfDocument();
+            PdfDocument document = new PrintedPdfDocument(Android.App.Application.Context, printAttrs);
 
             // Create a page description
             // A4 : Page size
@@ -29,6 +38,9 @@ namespace MpPdfDemoApp.Droid.Helpers
             // pageHeight The page height in PostScript(1 / 72th of an inch).
             PageInfo pageInfo = new PageInfo.Builder(592, 842, 1).Create();
             PdfDocument.Page page = document.StartPage(pageInfo);
+
+            Xamarin.Forms.Button btn = new Xamarin.Forms.Button();
+            
 
             // File to create page
             File path = GetDirectoryPath();
@@ -41,8 +53,8 @@ namespace MpPdfDemoApp.Droid.Helpers
 
             document.FinishPage(page);
             document.WriteTo(fileStream);
-
             document.Close();
+            fileStream.Close();
         }
 
         public File GetDirectoryPath()
